@@ -1,11 +1,12 @@
 import requests
 import threading
 import time
+import os
 from telegram import Bot
 from flask import Flask
 
 # -----------------------
-# TELEGRAM  (همان توکن و چت‌آیدی که دادی)
+# TELEGRAM
 # -----------------------
 BOT_TOKEN = "8546173398:AAEDnGYPuKKhWATYnZ8cbzFe3Q7kJ2AnkUQ"
 CHAT_ID = "161280400"
@@ -47,7 +48,7 @@ intervals = ["5min", "15min"]
 last_status = {}
 
 # -----------------------
-# FETCH KLINE (بهینه‌تر)
+# FETCH KLINE
 # -----------------------
 def get_kline(symbol, interval):
     try:
@@ -61,7 +62,7 @@ def get_kline(symbol, interval):
         return None
 
 # -----------------------
-# CHECK PRICES LOOP
+# CHECK LOOP
 # -----------------------
 def check_prices():
     while True:
@@ -100,19 +101,20 @@ def check_prices():
                         )
                         last_status[key] = "down"
 
-                # ارسال پیام اگر تغییر بود
+                # ارسال پیام
                 if message:
                     print(message)
                     try:
                         bot.send_message(chat_id=CHAT_ID, text=message)
                     except Exception as e:
-                        print("Telegram error:", e)
+                        print("Telegram Error:", e)
 
-        time.sleep(60)  # چک هر ۱ دقیقه (بهترین حالت)
+        time.sleep(60)
 
 # -----------------------
 # RUN
 # -----------------------
 if __name__ == "__main__":
-    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=8000)).start()
+    port = int(os.environ.get("PORT", 10000))  # پورت درست برای Render
+    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=port)).start()
     check_prices()
